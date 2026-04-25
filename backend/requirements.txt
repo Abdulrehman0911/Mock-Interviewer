@@ -1,12 +1,4 @@
 flask
 flask-cors
-pymupdf
-spacy
-mediapipe
-opencv-python
-moviepy
-openai
-google-generativeai
-firebase-admin
 python-dotenv
-gunicorn
+firebase-admin
