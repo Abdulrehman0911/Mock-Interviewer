@@ -10,3 +10,7 @@ google-generativeai
 firebase-admin
 python-dotenv
 gunicorn
+numpy
+pandas
+scikit-learn
+pickle5
