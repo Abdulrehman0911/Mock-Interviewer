@@ -50,7 +50,8 @@ def process_video(video_path: str) -> Dict[str, object]:
         print("Extracting audio from video...")
         try:
             # Import moviepy locally to avoid import-time failures when not installed
-            from moviepy.editor import VideoFileClip
+            # Use correct import path for moviepy 2.2.1+
+            from moviepy.video.io.VideoFileClip import VideoFileClip
         except Exception:
             return {"success": False, "error": "moviepy_unavailable"}
 
