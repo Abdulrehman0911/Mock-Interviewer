@@ -4,6 +4,11 @@ import os
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from dotenv import load_dotenv
+from werkzeug.utils import secure_filename
+import tempfile
+
+# Import new pipeline modules
+import video_processor
 
 # Import our modules
 import model_inference
@@ -249,6 +254,88 @@ def evaluate_answer_endpoint():
             "success": False,
             "error": f"Unexpected error: {str(e)}"
         }), 500
+
+
+# ============================================================================
+# VIDEO PROCESSING ENDPOINT
+# ============================================================================
+@app.route("/api/process-video", methods=["POST"])
+def process_video_endpoint():
+    """Process uploaded video, extract features, and return model score.
+
+    Expects multipart/form-data with:
+      - video: file
+      - question_difficulty: int (1-3) optional
+
+    Returns JSON with success, score, transcript, features or error.
+    """
+    try:
+        if "video" not in request.files:
+            return jsonify({"success": False, "error": "No video file provided"}), 400
+
+        video_file = request.files.get("video")
+        if video_file.filename == "":
+            return jsonify({"success": False, "error": "Empty filename"}), 400
+
+        qdiff = request.form.get("question_difficulty", 2)
+        try:
+            qdiff = int(qdiff)
+            if qdiff < 1 or qdiff > 3:
+                qdiff = 2
+        except Exception:
+            qdiff = 2
+
+        # Save to temporary file
+        tmp_dir = os.path.join(os.path.dirname(__file__), "tmp")
+        os.makedirs(tmp_dir, exist_ok=True)
+        filename = secure_filename(video_file.filename)
+        tmp_path = os.path.join(tmp_dir, filename)
+        video_file.save(tmp_path)
+
+        print("Processing video:", tmp_path)
+        result = video_processor.process_video(tmp_path)
+
+        # Clean up uploaded video
+        try:
+            os.remove(tmp_path)
+        except Exception:
+            pass
+
+        if not result.get("success"):
+            return jsonify({"success": False, "error": result.get("error", "processing_failed")}), 500
+
+        features = result["features"]
+        # override question difficulty with provided value
+        features["question_difficulty"] = qdiff
+
+        transcript = result.get("transcript", "")
+
+        # Predict score
+        try:
+            score = model_inference.predict_score(features)
+        except Exception as e:
+            return jsonify({"success": False, "error": f"prediction_failed: {str(e)}"}), 500
+
+        # Optionally: store session data (not implemented persistence)
+        session_entry = {
+            "transcript": transcript,
+            "score": score,
+            "features": features,
+        }
+
+        print(f"✓ Video scored: {score}")
+
+        return jsonify({
+            "success": True,
+            "score": score,
+            "transcript": transcript,
+            "features": features,
+            "message": "Video processed successfully"
+        }), 200
+
+    except Exception as e:
+        print(f"✗ Error in /api/process-video: {str(e)}")
+        return jsonify({"success": False, "error": str(e)}), 500
 
 
 # ============================================================================
