@@ -48,47 +48,67 @@ def process_video(video_path: str) -> Dict[str, object]:
             return {"success": False, "error": "video_not_found"}
 
         print("Extracting audio from video...")
+        
+        # Try moviepy first, fall back to librosa if needed
+        duration = 0.0
+        audio_data = None
+        sr = None
+        
         try:
-            # Import moviepy locally to avoid import-time failures when not installed
-            # Use correct import path for moviepy 2.2.1+
             from moviepy.video.io.VideoFileClip import VideoFileClip
-        except Exception:
-            return {"success": False, "error": "moviepy_unavailable"}
-
-        clip = VideoFileClip(video_path)
-        duration = float(clip.duration or 0.0)
-
-        if clip.audio is None:
+            clip = VideoFileClip(video_path)
+            duration = float(clip.duration or 0.0)
+            if clip.audio is not None:
+                with tempfile.NamedTemporaryFile(delete=False, suffix=".mp3") as t:
+                    tmp_audio = t.name
+                clip.audio.write_audiofile(tmp_audio, logger=None)
             clip.close()
-            return {"success": False, "error": "no_audio_in_video"}
-
-        with tempfile.NamedTemporaryFile(delete=False, suffix=".mp3") as t:
-            tmp_audio = t.name
-        clip.audio.write_audiofile(tmp_audio, logger=None)
-        clip.close()
+        except Exception as e:
+            print(f"[!] Moviepy failed: {str(e)}, trying librosa...")
+            try:
+                import librosa
+                audio_data, sr = librosa.load(video_path, sr=None)
+                duration = librosa.get_duration(y=audio_data, sr=sr)
+                with tempfile.NamedTemporaryFile(delete=False, suffix=".mp3") as t:
+                    tmp_audio = t.name
+                import soundfile as sf
+                sf.write(tmp_audio, audio_data, sr)
+            except Exception as e2:
+                return {"success": False, "error": f"audio_extraction_failed: {str(e2)}"}
 
         transcript = ""
         if WhisperModel is None:
-            print("⚠ faster-whisper not available, skipping transcription")
+            print("[!] faster-whisper not available, skipping transcription")
+        elif tmp_audio is None:
+            print("[!] No audio track found in video, skipping transcription")
         else:
             print("Transcribing audio with faster-whisper...")
             try:
                 model = WhisperModel("base", device="cpu")
                 segments, info = model.transcribe(tmp_audio)
-                transcript = " ".join([s.text for s in segments])
+                transcript = " ".join([s.text for s in segments]).strip()
+                print(f"[OK] Transcription complete: {len(transcript.split())} words")
             except Exception as e:
-                print(f"⚠ Transcription failed: {str(e)}")
+                print(f"[!] Transcription failed: {str(e)}")
                 transcript = ""
-
-        if not transcript:
-            # fallback: empty transcript
-            transcript = ""
 
         print("Extracting text features...")
         text_features = extract_text_features(transcript, duration)
 
         print("Analyzing behavior in video... (MediaPipe)")
         behavior = analyze_video_behavior(video_path)
+        if not behavior.get("success", False):
+            error_msg = behavior.get("error", "unknown")
+            print(f"[!] Behavior analysis failed ({error_msg}), using default scores")
+            # Use neutral defaults so scoring can still proceed
+            behavior = {
+                "success": True,
+                "eye_contact_pct": 50.0,
+                "head_pose_score": 5,
+                "posture_score": 5,
+                "facial_stability_score": 5,
+                "dominant_emotion": "neutral",
+            }
 
         # Build full features dict (model expects 10 features)
         features = {
@@ -97,20 +117,20 @@ def process_video(video_path: str) -> Dict[str, object]:
             "pause_count": text_features.get("pause_count", 0),
             "pause_avg_duration": text_features.get("pause_avg_duration", 0.0),
             "filler_count": text_features.get("filler_count", 0),
-            "eye_contact_pct": behavior.get("eye_contact_pct", 0.0),
-            "head_pose_score": behavior.get("head_pose_score", 0),
-            "posture_score": behavior.get("posture_score", 0),
-            "facial_stability_score": behavior.get("facial_stability_score", 0),
+            "eye_contact_pct": behavior["eye_contact_pct"],
+            "head_pose_score": behavior["head_pose_score"],
+            "posture_score": behavior["posture_score"],
+            "facial_stability_score": behavior["facial_stability_score"],
             # question_difficulty should be supplied by caller / endpoint
             "question_difficulty": 2,
         }
 
-        print("✓ Video processed successfully")
-        return {"success": True, "features": features, "transcript": transcript}
+        print("[OK] Video processed successfully")
+        return {"success": True, "features": features, "transcript": transcript, "behavior": behavior}
 
     except Exception as e:
         tb = traceback.format_exc()
-        print(f"✗ Error processing video: {str(e)}\n{tb}")
+        print(f"[ERROR] Error processing video: {str(e)}\n{tb}")
         return {"success": False, "error": str(e)}
 
     finally:

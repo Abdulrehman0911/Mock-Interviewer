@@ -22,7 +22,7 @@ class QuestionManager:
         try:
             with open(self.json_path, "r", encoding="utf-8") as f:
                 self.questions_data = json.load(f)
-            print(f"✓ Loaded questions for {len(self.questions_data)} roles")
+            print(f"[OK] Loaded questions for {len(self.questions_data)} roles")
         except Exception as e:
             raise RuntimeError(f"Failed to load questions: {str(e)}")
 
@@ -95,7 +95,7 @@ class QuestionManager:
 try:
     question_manager = QuestionManager()
 except Exception as e:
-    print(f"⚠ Warning: Failed to load questions: {str(e)}")
+    print(f"[WARN] Failed to load questions: {str(e)}")
     question_manager = None
 
 

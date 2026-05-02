@@ -1,6 +1,7 @@
 """Flask API for Mock Interviewer with ML model integration."""
 
 import os
+from datetime import datetime
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from dotenv import load_dotenv
@@ -20,7 +21,19 @@ load_dotenv()
 
 # Initialize Flask app
 app = Flask(__name__)
-CORS(app)  # Enable CORS for all origins (development)
+CORS(app, resources={r"/api/*": {
+    "origins": "*",
+    "methods": ["GET", "POST", "OPTIONS"],
+    "allow_headers": ["Content-Type", "Authorization", "Accept"],
+    "supports_credentials": False,
+}})
+
+@app.after_request
+def add_cors_headers(response):
+    response.headers["Access-Control-Allow-Origin"] = "*"
+    response.headers["Access-Control-Allow-Methods"] = "GET, POST, OPTIONS"
+    response.headers["Access-Control-Allow-Headers"] = "Content-Type, Authorization, Accept"
+    return response
 
 # Configuration
 app.config["JSON_SORT_KEYS"] = False
@@ -80,8 +93,8 @@ def get_roles():
                 "error": "Question manager not initialized"
             }), 500
 
-        roles = question_manager.get_all_roles()
-        print(f"✓ Retrieved {len(roles)} roles")
+        roles = question_manager.question_manager.get_all_roles()
+        print(f"[OK] Retrieved {len(roles)} roles")
         
         return jsonify({
             "success": True,
@@ -90,7 +103,7 @@ def get_roles():
         }), 200
 
     except Exception as e:
-        print(f"✗ Error in /api/roles: {str(e)}")
+        print(f"[ERROR] Error in /api/roles: {str(e)}")
         return jsonify({
             "success": False,
             "error": str(e)
@@ -120,8 +133,8 @@ def get_questions(role):
                 "error": "Count must be between 1 and 20"
             }), 400
 
-        questions = question_manager.get_random_questions(role, count)
-        print(f"✓ Retrieved {len(questions)} questions for {role}")
+        questions = question_manager.question_manager.get_random_questions(role, count)
+        print(f"[OK] Retrieved {len(questions)} questions for {role}")
         
         return jsonify({
             "success": True,
@@ -131,14 +144,14 @@ def get_questions(role):
         }), 200
 
     except ValueError as e:
-        print(f"✗ Invalid role: {str(e)}")
+        print(f"[ERROR] Invalid role: {str(e)}")
         return jsonify({
             "success": False,
             "error": str(e)
         }), 400
 
     except Exception as e:
-        print(f"✗ Error in /api/questions: {str(e)}")
+        print(f"[ERROR] Error in /api/questions: {str(e)}")
         return jsonify({
             "success": False,
             "error": str(e)
@@ -223,7 +236,7 @@ def evaluate_answer_endpoint():
         # Evaluate the answer
         evaluation = evaluator.evaluate_answer(features, transcript)
         
-        print(f"✓ Evaluated answer for {role} (Q{question_id}): score={evaluation['model_score']}")
+        print(f"[OK] Evaluated answer for {role} (Q{question_id}): score={evaluation['model_score']}")
 
         return jsonify({
             "success": True,
@@ -235,21 +248,21 @@ def evaluate_answer_endpoint():
         }), 200
 
     except ValueError as e:
-        print(f"✗ Validation error in /api/evaluate-answer: {str(e)}")
+        print(f"[ERROR] Validation error in /api/evaluate-answer: {str(e)}")
         return jsonify({
             "success": False,
             "error": str(e)
         }), 400
 
     except RuntimeError as e:
-        print(f"✗ Runtime error in /api/evaluate-answer: {str(e)}")
+        print(f"[ERROR] Runtime error in /api/evaluate-answer: {str(e)}")
         return jsonify({
             "success": False,
             "error": str(e)
         }), 500
 
     except Exception as e:
-        print(f"✗ Unexpected error in /api/evaluate-answer: {str(e)}")
+        print(f"[ERROR] Unexpected error in /api/evaluate-answer: {str(e)}")
         return jsonify({
             "success": False,
             "error": f"Unexpected error: {str(e)}"
@@ -259,24 +272,58 @@ def evaluate_answer_endpoint():
 # ============================================================================
 # VIDEO PROCESSING ENDPOINT
 # ============================================================================
+@app.route("/api/process-video", methods=["OPTIONS"])
+def process_video_options():
+    return "", 200
+
+
 @app.route("/api/process-video", methods=["POST"])
 def process_video_endpoint():
-    """Process uploaded video, extract features, and return model score.
+    """Process uploaded video, extract features, and return complete scoring breakdown.
 
     Expects multipart/form-data with:
       - video: file
+      - question_id: int (required for correctness scoring)
+      - question_text: str (optional, for logging)
       - question_difficulty: int (1-3) optional
+      - role: str (job role, default: Software Engineer)
 
-    Returns JSON with success, score, transcript, features or error.
+    Returns JSON with success, scores breakdown, transcript, features or error.
     """
     try:
+        print("\n" + "=" * 80)
+        print(f"[START]  Video processing request received")
+        print(f"[TIME]   {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+        print(f"[METHOD] {request.method}")
+        print(f"[CTYPE]  {request.content_type}")
+        print(f"[FILES]  {list(request.files.keys())}")
+        print(f"[FORM]   {dict(request.form)}")
+
         if "video" not in request.files:
+            print("[ERROR] No video in request.files — FormData may be malformed")
             return jsonify({"success": False, "error": "No video file provided"}), 400
 
         video_file = request.files.get("video")
         if video_file.filename == "":
+            print("[ERROR] Empty filename on video file")
             return jsonify({"success": False, "error": "Empty filename"}), 400
 
+        print(f"[VIDEO] Filename: {video_file.filename}")
+        video_bytes = video_file.read()
+        print(f"[VIDEO] Size: {len(video_bytes)} bytes")
+        video_file.seek(0)
+
+        # Get question_id (required)
+        qid = request.form.get("question_id")
+        try:
+            question_id = int(qid) if qid else None
+        except Exception:
+            question_id = None
+
+        # Get question text (optional, for logging)
+        question_text = request.form.get("question_text")
+
+        # Get question difficulty
         qdiff = request.form.get("question_difficulty", 2)
         try:
             qdiff = int(qdiff)
@@ -285,6 +332,9 @@ def process_video_endpoint():
         except Exception:
             qdiff = 2
 
+        # Get role
+        role = request.form.get("role", "Software Engineer")
+
         # Save to temporary file
         tmp_dir = os.path.join(os.path.dirname(__file__), "tmp")
         os.makedirs(tmp_dir, exist_ok=True)
@@ -292,7 +342,9 @@ def process_video_endpoint():
         tmp_path = os.path.join(tmp_dir, filename)
         video_file.save(tmp_path)
 
-        print("Processing video:", tmp_path)
+        print(f"[PARAMS] question_id={qid}, difficulty={qdiff}, role={role}")
+        print(f"[SAVED]  Video saved to {tmp_path}")
+        print(f"[PROCESS] Starting video processing pipeline...")
         result = video_processor.process_video(tmp_path)
 
         # Clean up uploaded video
@@ -302,39 +354,83 @@ def process_video_endpoint():
             pass
 
         if not result.get("success"):
+            print(f"[ERROR]  Pipeline failed: {result.get('error')}")
             return jsonify({"success": False, "error": result.get("error", "processing_failed")}), 500
 
         features = result["features"]
         # override question difficulty with provided value
         features["question_difficulty"] = qdiff
-
         transcript = result.get("transcript", "")
 
-        # Predict score
-        try:
-            score = model_inference.predict_score(features)
-        except Exception as e:
-            return jsonify({"success": False, "error": f"prediction_failed: {str(e)}"}), 500
+        print(f"[FEATURES] wpm={features.get('wpm')}, eye_contact={features.get('eye_contact_pct')}%, fillers={features.get('filler_count')}")
+        print(f"[TRANSCRIPT] {len(transcript.split()) if transcript else 0} words: {transcript[:80]}...")
 
-        # Optionally: store session data (not implemented persistence)
-        session_entry = {
+        # Evaluate answer with both behavioral and correctness scoring
+        try:
+            print("[SCORE]  Running evaluation...")
+            evaluation = evaluator.evaluate_answer(
+                features, 
+                transcript, 
+                question_id, 
+                role,
+                question_text=question_text
+            )
+        except Exception as e:
+            print(f"[API] ERROR: evaluation_failed: {str(e)}")
+            return jsonify({"success": False, "error": f"evaluation_failed: {str(e)}"}), 500
+
+        # ACTION 5.1: Build complete response with full breakdown
+        print("[API] [OK] Building response with complete breakdown")
+
+        response_data = {
+            "success": True,
+            "scores": {
+                "behavioral": {
+                    "score": evaluation["breakdown"]["behavioral"]["score"],
+                    "out_of": 4,
+                    "percentage": evaluation["breakdown"]["behavioral"]["percentage"],
+                    "subscale": evaluation["breakdown"]["behavioral"]["subscale"]
+                },
+                "correctness": {
+                    "score": evaluation["breakdown"]["correctness"]["score"],
+                    "out_of": 6,
+                    "percentage": evaluation["breakdown"]["correctness"]["percentage"],
+                    "subscale": evaluation["breakdown"]["correctness"]["subscale"],
+                    "tier": evaluation["breakdown"]["correctness"]["tier_matched"],
+                    "match_high": evaluation["breakdown"]["correctness"]["match_high"],
+                    "match_medium": evaluation["breakdown"]["correctness"]["match_medium"],
+                    "match_low": evaluation["breakdown"]["correctness"]["match_low"],
+                    "filler_count": evaluation["breakdown"]["correctness"]["filler_count"]
+                },
+                "final": {
+                    "score": evaluation["breakdown"]["final"]["score"],
+                    "out_of": 10,
+                    "percentage": evaluation["breakdown"]["final"]["percentage"]
+                }
+            },
             "transcript": transcript,
-            "score": score,
             "features": features,
+            "feedback": {
+                "follow_up_question": evaluation.get("follow_up_question"),
+                "strengths": evaluation.get("strengths"),
+                "improvements": evaluation.get("improvements"),
+                "performance_level": evaluation.get("performance_level")
+            }
         }
 
-        print(f"✓ Video scored: {score}")
+        final = response_data['scores']['final']['score']
+        behavioral = response_data['scores']['behavioral']['score']
+        correctness = response_data['scores']['correctness']['score']
+        print(f"[FINAL]  behavioral={behavioral}/10, correctness={correctness}/10, final={final}/10")
+        print("=" * 70 + "\n")
 
-        return jsonify({
-            "success": True,
-            "score": score,
-            "transcript": transcript,
-            "features": features,
-            "message": "Video processed successfully"
-        }), 200
+        return jsonify(response_data), 200
 
     except Exception as e:
-        print(f"✗ Error in /api/process-video: {str(e)}")
+        import traceback
+        print(f"[EXCEPTION] {type(e).__name__}: {str(e)}")
+        traceback.print_exc()
+        print("=" * 70 + "\n")
         return jsonify({"success": False, "error": str(e)}), 500
 
 
@@ -411,7 +507,7 @@ def session_summary_endpoint():
         # Generate summary report
         report = evaluator.generate_summary_report(scores, transcripts)
         
-        print(f"✓ Generated session summary for {role}: overall_score={report['overall_score']}")
+        print(f"[OK] Generated session summary for {role}: overall_score={report['overall_score']}")
 
         return jsonify({
             "success": True,
@@ -426,21 +522,21 @@ def session_summary_endpoint():
         }), 200
 
     except ValueError as e:
-        print(f"✗ Validation error in /api/session-summary: {str(e)}")
+        print(f"[ERROR] Validation error in /api/session-summary: {str(e)}")
         return jsonify({
             "success": False,
             "error": str(e)
         }), 400
 
     except RuntimeError as e:
-        print(f"✗ Runtime error in /api/session-summary: {str(e)}")
+        print(f"[ERROR] Runtime error in /api/session-summary: {str(e)}")
         return jsonify({
             "success": False,
             "error": str(e)
         }), 500
 
     except Exception as e:
-        print(f"✗ Unexpected error in /api/session-summary: {str(e)}")
+        print(f"[ERROR] Unexpected error in /api/session-summary: {str(e)}")
         return jsonify({
             "success": False,
             "error": f"Unexpected error: {str(e)}"
@@ -480,14 +576,14 @@ if __name__ == "__main__":
     
     # Verify models and data are loaded
     if model_inference.inference is None:
-        print("⚠ WARNING: Model not loaded. Some endpoints will fail.")
+        print("[WARN] Model not loaded. Some endpoints will fail.")
     else:
-        print("✓ Model loaded successfully")
+        print("[OK] Model loaded successfully")
     
     if question_manager.question_manager is None:
-        print("⚠ WARNING: Questions not loaded. Some endpoints will fail.")
+        print("[WARN] Questions not loaded. Some endpoints will fail.")
     else:
-        print("✓ Questions loaded successfully")
+        print("[OK] Questions loaded successfully")
     
     print()
     print("=" * 60)

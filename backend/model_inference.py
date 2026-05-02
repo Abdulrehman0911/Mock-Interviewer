@@ -29,7 +29,7 @@ class ModelInference:
                 self.model = pickle.load(f)
             with open(self.scaler_path, "rb") as f:
                 self.scaler = pickle.load(f)
-            print("✓ Model and scaler loaded successfully")
+            print("[OK] Model and scaler loaded successfully")
         except Exception as e:
             raise RuntimeError(f"Failed to load model artifacts: {str(e)}")
 
@@ -99,7 +99,7 @@ class ModelInference:
 try:
     inference = ModelInference()
 except Exception as e:
-    print(f"⚠ Warning: Failed to load model: {str(e)}")
+    print(f"[WARN] Failed to load model: {str(e)}")
     inference = None
 
 

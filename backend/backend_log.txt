@@ -1,0 +1,17 @@
+[OK] Model and scaler loaded successfully
+[OK] Loaded questions for 12 roles
+============================================================
+Mock Interviewer Flask API
+============================================================
+
+Starting Flask server...
+Loading models and data...
+[OK] Model loaded successfully
+[OK] Questions loaded successfully
+
+============================================================
+Server ready at http://localhost:5000
+============================================================
+
+ * Serving Flask app 'app'
+ * Debug mode: on

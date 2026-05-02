@@ -1,0 +1,262 @@
+﻿d:/Projects/AI_Project/.venv/Scripts/python.exe : [2026-05-02 12:51:57.188] 
+[ctranslate2] [thread 9244] [warning] The compute type inferred from the saved 
+model is float16, but the target device or backend do not support efficient 
+float16 computation. The model weights have been automatically converted to 
+use the float32 compute type instead.
+At line:1 char:63
++ ... er\backend; d:/Projects/AI_Project/.venv/Scripts/python.exe test_comp ...
++                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: ([2026-05-02 12:...e type instead. 
+   :String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+[2026-05-02 12:52:31.135] [ctranslate2] [thread 9244] [warning] The compute 
+type inferred from the saved model is float16, but the target device or 
+backend do not support efficient float16 computation. The model weights have 
+been automatically converted to use the float32 compute type instead.
+[OK] Model and scaler loaded successfully
+
+====================================================================================================
+=                                                                                                  =
+=                        COMPREHENSIVE CANDIDATE ANALYSIS & SCORING SYSTEM                         =
+=                                                                                                  =
+====================================================================================================
+
+====================================================================================================
+PROCESSING: Asad1.mov
+====================================================================================================
+
+Step 1: Extracting Transcript & Text Features...
+----------------------------------------------------------------------------------------------------
+Extracting audio from video...
+Transcribing audio with faster-whisper...
+Extracting text features...
+Analyzing behavior in video... (MediaPipe)
+[OK] Video processed successfully
+[OK] Transcript extracted: 423 characters
+
+[ FULL TRANSCRIPT ]
+----------------------------------------------------------------------------------------------------
+ Okay, so an API is an application, application interface, and like a perfect example to explain  this would be when you go to a restaurant, there's a waiter, there's a waiter and you tell  the waiter what you want and he goes to the kitchen and gets it for you.  So an API is just like a waiter, it lets software programs communicate with each other.  So I think that's enough explanation for to explain the BASER concept.
+----------------------------------------------------------------------------------------------------
+
+Step 2: Analyzing Expressions & Emotions...
+----------------------------------------------------------------------------------------------------
+[OK] Behavioral Metrics Extracted:
+   * Eye Contact: 46.7%
+   * Head Pose Score: 8/10
+   * Posture Score: 9/10
+   * Facial Stability: 7/10
+   * Dominant Emotion: happy
+
+Step 3: Speech Pattern Analysis...
+----------------------------------------------------------------------------------------------------
+[OK] Speech Patterns:
+   * Total Words: 81
+   * Words Per Minute: 106.9
+   * Pauses: 6 (avg 0.00s)
+   * Fillers Used: 2
+
+Step 4: Calculating Behavioral Score (Delivery Quality)...
+----------------------------------------------------------------------------------------------------
+[OK] Behavioral Score: 6.80/10.0
+   Factors: Speech clarity, pacing, fillers, body language
+
+Step 5: Analyzing Content Correctness (Keyword Matching)...
+----------------------------------------------------------------------------------------------------
+[Correctness] Q3: HIGH=0.0% MEDIUM=0.0% LOW=0.0% -> Tier=NONE, Score=0.0
+[OK] Correctness Score: 0.00/10.0
+   * Tier Matched: NONE
+   * HIGH tier keywords: 0.0%
+   * MEDIUM tier keywords: 0.0%
+   * LOW tier keywords: 0.0%
+
+[KEYWORDS] Found in Answer (20 total):
+   First 15 keywords: okay,, an, api, is, an, application,, application, interface,, and, a, perfect, example, to, explain, this
+   ... and 5 more
+
+Step 6: Calculating Final Combined Score...
+----------------------------------------------------------------------------------------------------
+Formula: behavioral out of 4 + correctness out of 6
+  = (6.80/10.0) -> 2.70/4.0
+  = (0.00/10.0) -> 0.00/6.0
+  = 2.70/10.0
+
+
+====================================================================================================
+PROCESSING: Usman1.mp4
+====================================================================================================
+
+Step 1: Extracting Transcript & Text Features...
+----------------------------------------------------------------------------------------------------
+Extracting audio from video...
+Transcribing audio with faster-whisper...
+Extracting text features...
+Analyzing behavior in video... (MediaPipe)
+[OK] Video processed successfully
+[OK] Transcript extracted: 561 characters
+
+[ FULL TRANSCRIPT ]
+----------------------------------------------------------------------------------------------------
+ okay so supervisor and supervise learning rights so the main  difference is let me think about this in supervise learning you have like  label data white so basically you are training your model and and so  basically you are already know what the answers should be the kind of  imagine you're teaching someone and you are giving them the correct answers  the correct labels and contrary on unsupervised learning we have like this  no label dataset we give only the inputs and then checks our model that it  gives the correct output on a particular input or not
+----------------------------------------------------------------------------------------------------
+
+Step 2: Analyzing Expressions & Emotions...
+----------------------------------------------------------------------------------------------------
+[OK] Behavioral Metrics Extracted:
+   * Eye Contact: 0.0%
+   * Head Pose Score: 8/10
+   * Posture Score: 6/10
+   * Facial Stability: 8/10
+   * Dominant Emotion: neutral
+
+Step 3: Speech Pattern Analysis...
+----------------------------------------------------------------------------------------------------
+[OK] Speech Patterns:
+   * Total Words: 99
+   * Words Per Minute: 127.1
+   * Pauses: 6 (avg 0.00s)
+   * Fillers Used: 4
+
+Step 4: Calculating Behavioral Score (Delivery Quality)...
+----------------------------------------------------------------------------------------------------
+[OK] Behavioral Score: 7.00/10.0
+   Factors: Speech clarity, pacing, fillers, body language
+
+Step 5: Analyzing Content Correctness (Keyword Matching)...
+----------------------------------------------------------------------------------------------------
+[Correctness] Q1: HIGH=16.7% MEDIUM=28.6% LOW=0.0% -> Tier=PARTIAL, Score=2.9
+[OK] Correctness Score: 2.90/10.0
+   * Tier Matched: PARTIAL
+   * HIGH tier keywords: 16.7%
+   * MEDIUM tier keywords: 28.6%
+   * LOW tier keywords: 0.0%
+
+[KEYWORDS] Found in Answer (20 total):
+   First 15 keywords: okay, supervi, r, and, supervise, learning, s, the, main, difference, is, let, me, think, about
+   ... and 5 more
+
+Step 6: Calculating Final Combined Score...
+----------------------------------------------------------------------------------------------------
+Formula: behavioral out of 4 + correctness out of 6
+  = (7.00/10.0) -> 2.80/4.0
+  = (2.90/10.0) -> 1.70/6.0
+  = 4.50/10.0
+
+
+
+
++==================================================================================================+
+|                                                                                                  |
+|                                FINAL INTERVIEW EVALUATION REPORT                                 |
+|                                                                                                  |
++==================================================================================================+
+
+
++--------------------------------------------------------------------------------------------------+
+| CANDIDATE 1: ASAD                                                                                 |
++--------------------------------------------------------------------------------------------------+
+| Role: Software Engineer              Question ID: 3     |                                         
+|                                                                                                  |
+| Question: How do you approach code refactoring in a large legacy codebase?                         |
+|                                                                                                  |
++--------------------------------------------------------------------------------------------------+
+| TRANSCRIPT:                                                                                       |
+|   Okay, so an API is an application, application interface, and like a perfect example to expla |
+|                                                                                                  |
++--------------------------------------------------------------------------------------------------+
+| [SPEECH & COMMUNICATION ANALYSIS]                                                                 |
+|   * Word Count: 81                                                                               |
+|   * Pacing (WPM): 106.9 words/min                                                                  |
+|   * Pauses: 6 pauses (avg 0.00s)                                                          |
+|   * Filler Words: 2 instances (um, uh, like, etc.)                                                 |
+|                                                                                                  |
++--------------------------------------------------------------------------------------------------+
+| [BEHAVIORAL METRICS & EXPRESSIONS]                                                                |
+|   * Eye Contact: 46.7% [ Needs Improvement ]                                                            |
+|   * Head Pose: 8/10 ########--                                                                     |
+|   * Posture: 9/10 #########-                                                                      |
+|   * Facial Stability: 7/10 #######---                                                             |
+|   * Dominant Emotion: Happy                                                                        |
+|                                                                                                  |
++--------------------------------------------------------------------------------------------------+
+| [CONTENT CORRECTNESS ANALYSIS]                                                                    |
+|   * Tier Matched: NONE                                                                             |
+|   * HIGH tier accuracy: 0.0% ----------                                                           |
+|   * MEDIUM tier accuracy: 0.0% ----------                                                        |
+|   * LOW tier accuracy: 0.0% ----------                                                           |
+|                                                                                                  |
+|   Top Keywords Found: okay,, an, api, is, an                                                      |
+|   Plus 15 additional keywords                                                                         |
+|                                                                                                  |
++--------------------------------------------------------------------------------------------------+
+| [OVERALL SCORES]                                                                                  |
+|   Behavioral Score (Delivery):  6.80/10.0  [Good          ]  [OK]                                 |
+|   Behavioral Contribution:      2.70/4.0                                                                |
+|   Correctness Score (Content):  0.00/10.0  [Poor          ]  [X]                                  |
+|   Correctness Contribution:     0.00/6.0                                                                |
+|                                                                                                  |
+|   FINAL SCORE:                  2.70/10.0  [Poor          ]  [**]                                 |
+|                                                                                                  |
++--------------------------------------------------------------------------------------------------+
+| [FEEDBACK & RECOMMENDATIONS]                                                                      |
+|   [!]  Fair delivery - Some clarity or pacing issues to address                                   |
+|   [X] Content needs improvement - Align answer with expected keywords                             |
+|                                                                                                  |
++--------------------------------------------------------------------------------------------------+
+
+
++--------------------------------------------------------------------------------------------------+
+| CANDIDATE 2: USMAN                                                                                |
++--------------------------------------------------------------------------------------------------+
+| Role: Data Scientist                 Question ID: 1     |                                         
+|                                                                                                  |
+| Question: What is the difference between supervised and unsupervised learning?                     |
+|                                                                                                  |
++--------------------------------------------------------------------------------------------------+
+| TRANSCRIPT:                                                                                       |
+|   okay so supervisor and supervise learning rights so the main  difference is let me think abou |
+|                                                                                                  |
++--------------------------------------------------------------------------------------------------+
+| [SPEECH & COMMUNICATION ANALYSIS]                                                                 |
+|   * Word Count: 99                                                                               |
+|   * Pacing (WPM): 127.1 words/min                                                                  |
+|   * Pauses: 6 pauses (avg 0.00s)                                                          |
+|   * Filler Words: 4 instances (um, uh, like, etc.)                                                 |
+|                                                                                                  |
++--------------------------------------------------------------------------------------------------+
+| [BEHAVIORAL METRICS & EXPRESSIONS]                                                                |
+|   * Eye Contact: 0.0% [ Needs Improvement ]                                                            |
+|   * Head Pose: 8/10 ########--                                                                     |
+|   * Posture: 6/10 ######----                                                                      |
+|   * Facial Stability: 8/10 ########--                                                             |
+|   * Dominant Emotion: Neutral                                                                      |
+|                                                                                                  |
++--------------------------------------------------------------------------------------------------+
+| [CONTENT CORRECTNESS ANALYSIS]                                                                    |
+|   * Tier Matched: PARTIAL                                                                          |
+|   * HIGH tier accuracy: 16.7% #---------                                                           |
+|   * MEDIUM tier accuracy: 28.6% ##--------                                                        |
+|   * LOW tier accuracy: 0.0% ----------                                                           |
+|                                                                                                  |
+|   Top Keywords Found: okay, supervi, r, and, supervise                                            |
+|   Plus 15 additional keywords                                                                         |
+|                                                                                                  |
++--------------------------------------------------------------------------------------------------+
+| [OVERALL SCORES]                                                                                  |
+|   Behavioral Score (Delivery):  7.00/10.0  [Very Good     ]  [OK]                                 |
+|   Behavioral Contribution:      2.80/4.0                                                                |
+|   Correctness Score (Content):  2.90/10.0  [Poor          ]  [X]                                  |
+|   Correctness Contribution:     1.70/6.0                                                                |
+|                                                                                                  |
+|   FINAL SCORE:                  4.50/10.0  [Poor          ]  [**]                                 |
+|                                                                                                  |
++--------------------------------------------------------------------------------------------------+
+| [FEEDBACK & RECOMMENDATIONS]                                                                      |
+|   [OK] Good delivery - Generally clear with minor improvements possible                           |
+|   [X] Content needs improvement - Align answer with expected keywords                             |
+|                                                                                                  |
++--------------------------------------------------------------------------------------------------+
+
+
+[OK] Results saved to interview_results.json

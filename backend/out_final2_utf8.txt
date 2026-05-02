@@ -1,0 +1,80 @@
+﻿d:/Projects/AI_Project/.venv/Scripts/python.exe : [2026-05-02 12:48:31.806] 
+[ctranslate2] [thread 18336] [warning] The compute type inferred from the 
+saved model is float16, but the target device or backend do not support 
+efficient float16 computation. The model weights have been automatically 
+converted to use the float32 compute type instead.
+At line:1 char:63
++ ... er\backend; d:/Projects/AI_Project/.venv/Scripts/python.exe test_comp ...
++                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: ([2026-05-02 12:...e type instead. 
+   :String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+Traceback (most recent call last):
+  File "D:\Projects\AI_Project\mock-interviewer\backend\test_comprehensive_anal
+ysis.py", line 390, in <module>
+    main()
+  File "D:\Projects\AI_Project\mock-interviewer\backend\test_comprehensive_anal
+ysis.py", line 355, in main
+    results_asad = extract_and_analyze_video(
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Projects\AI_Project\mock-interviewer\backend\test_comprehensive_anal
+ysis.py", line 111, in extract_and_analyze_video
+    behavioral_score = predict_score(feature_list)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Projects\AI_Project\mock-interviewer\backend\model_inference.py", 
+line 122, in predict_score
+    return inference.predict_score(features_dict)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Projects\AI_Project\mock-interviewer\backend\model_inference.py", 
+line 76, in predict_score
+    raise ValueError(f"Missing required features: {', '.join(missing)}")
+ValueError: Missing required features: transcript_length, wpm, pause_count, 
+pause_avg_duration, filler_count, eye_contact_pct, head_pose_score, 
+posture_score, facial_stability_score, question_difficulty
+[OK] Model and scaler loaded successfully
+
+====================================================================================================
+=                                                                                                  =
+=                        COMPREHENSIVE CANDIDATE ANALYSIS & SCORING SYSTEM                         =
+=                                                                                                  =
+====================================================================================================
+
+====================================================================================================
+PROCESSING: Asad1.mov
+====================================================================================================
+
+Step 1: Extracting Transcript & Text Features...
+----------------------------------------------------------------------------------------------------
+Extracting audio from video...
+Transcribing audio with faster-whisper...
+Extracting text features...
+Analyzing behavior in video... (MediaPipe)
+[OK] Video processed successfully
+[OK] Transcript extracted: 423 characters
+
+[ FULL TRANSCRIPT ]
+----------------------------------------------------------------------------------------------------
+ Okay, so an API is an application, application interface, and like a perfect example to explain  this would be when you go to a restaurant, there's a waiter, there's a waiter and you tell  the waiter what you want and he goes to the kitchen and gets it for you.  So an API is just like a waiter, it lets software programs communicate with each other.  So I think that's enough explanation for to explain the BASER concept.
+----------------------------------------------------------------------------------------------------
+
+Step 2: Analyzing Expressions & Emotions...
+----------------------------------------------------------------------------------------------------
+[OK] Behavioral Metrics Extracted:
+   * Eye Contact: 46.7%
+   * Head Pose Score: 8/10
+   * Posture Score: 9/10
+   * Facial Stability: 7/10
+   * Dominant Emotion: happy
+
+Step 3: Speech Pattern Analysis...
+----------------------------------------------------------------------------------------------------
+[OK] Speech Patterns:
+   * Total Words: 81
+   * Words Per Minute: 106.9
+   * Pauses: 6 (avg 0.00s)
+   * Fillers Used: 2
+
+Step 4: Calculating Behavioral Score (Delivery Quality)...
+----------------------------------------------------------------------------------------------------
+[ERROR] Error: Missing required features: transcript_length, wpm, pause_count, pause_avg_duration, filler_count, eye_contact_pct, head_pose_score, posture_score, facial_stability_score, question_difficulty
