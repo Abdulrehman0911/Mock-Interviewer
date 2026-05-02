@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(unzip -o loveable_frontend.zip -d loveable_extracted/)",
+      "Bash(npx tsc *)"
+    ]
+  }
+}
