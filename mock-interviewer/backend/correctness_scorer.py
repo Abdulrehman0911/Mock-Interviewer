@@ -182,14 +182,14 @@ def score_answer_correctness(
     correctness_score = 0.0
 
     if master_keywords:
-        # NEW LOGIC (80/40 rule)
+        # NEW LOGIC (50/25 rule)
         match_pct = calculate_keyword_matches(user_keywords, master_keywords, threshold=0.8)
-        if match_pct >= 80.0:
-            tier_matched, correctness_score = "HIGH", 9.0 + (match_pct - 80.0) / 20.0 * 1.0
-        elif match_pct >= 40.0:
-            tier_matched, correctness_score = "MEDIUM", 6.0 + (match_pct - 40.0) / 40.0 * 2.5
+        if match_pct >= 50.0:
+            tier_matched, correctness_score = "HIGH", 8.0 + (match_pct - 50.0) / 50.0 * 2.0
+        elif match_pct >= 25.0:
+            tier_matched, correctness_score = "MEDIUM", 5.0 + (match_pct - 25.0) / 25.0 * 2.5
         elif match_pct > 0.0:
-            tier_matched, correctness_score = "LOW", 2.0 + (match_pct - 0.0) / 40.0 * 3.5
+            tier_matched, correctness_score = "LOW", 2.0 + (match_pct / 25.0) * 2.5
         
         # Populate old keys for compatibility
         match_high = match_pct if tier_matched == "HIGH" else 0.0
