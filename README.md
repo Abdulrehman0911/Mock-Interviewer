@@ -24,7 +24,7 @@ A professional-grade AI mock interview platform that simulates real technical an
 
 ## 🧾 Overview
 MockMate is a full-featured mock interview application designed for job seekers and professionals who want to practice their interview skills. It provides real-time video analysis, AI-driven behavioral scoring, and correctness feedback—all in one beautifully designed, dark-themed platform.
-From uploading your CV to practicing custom questions based on your target role, MockMate keeps you prepared and confident.
+For practicing custom questions based on your target role, MockMate keeps you prepared and confident.
 
 ## ✨ Key Features
 - 🧠 **AI-Powered Scoring** — Live analysis of both behavioral metrics (eye contact, posture) and answer correctness.
