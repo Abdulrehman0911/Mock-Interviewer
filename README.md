@@ -45,8 +45,12 @@ From uploading your CV to practicing custom questions based on your target role,
 ### Backend
 - **Python & Flask**
 - **OpenCV & MediaPipe** (Video Analysis)
-- **Google Gemini API** (AI Scoring)
+- **Regressor Forest Model** (AI Scoring)
 - **FFmpeg** (Video Conversion)
+
+### Machine Learning
+- **Custom Model Training:** We independently trained, tested, and compared 3 different machine learning models to score interview performance based on extracted behavioral and correctness metrics.
+- **Model Selection:** After rigorous evaluation, we selected the **Regressor Forest Model** as our final inference model due to its superior accuracy and reliability in predicting human-like interview scores.
 
 ## 🖼️ App Architecture
 ```text
