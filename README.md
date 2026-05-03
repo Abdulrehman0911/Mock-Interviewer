@@ -1,59 +1,98 @@
-# Mock Interviewer
+<p align="center">
+  <img src="Screenshots/app-screen-1.png" alt="MockMate Screenshot 1" width="45%"/>
+  <img src="Screenshots/app-screen-2.png" alt="MockMate Screenshot 2" width="45%"/>
+</p>
+<p align="center">
+  <img src="Screenshots/app-screen-3.png" alt="MockMate Screenshot 3" width="45%"/>
+  <img src="Screenshots/app-screen-4.png" alt="MockMate Screenshot 4" width="45%"/>
+</p>
+<p align="center">
+  <img src="Screenshots/app-screen-5.png" alt="MockMate Screenshot 5" width="45%"/>
+  <img src="Screenshots/app-screen-6.png" alt="MockMate Screenshot 6" width="45%"/>
+</p>
+<p align="center">
+  <img src="Screenshots/app-screen-7.png" alt="MockMate Screenshot 7" width="45%"/>
+  <img src="Screenshots/app-screen-8.png" alt="MockMate Screenshot 8" width="45%"/>
+</p>
+<p align="center">
+  <img src="Screenshots/app-screen-9.png" alt="MockMate Screenshot 9" width="45%"/>
+</p>
 
-An AI-driven mock interview platform that simulates real technical interviews using video analysis, CV parsing, and generative AI feedback.
+# MockMate
 
-## Tech Stack
+A professional-grade AI mock interview platform that simulates real technical and behavioral interviews. Track your performance, practice under pressure, and ace your next job interview.
 
-| Frontend | Backend | AI & Media | Data & Cloud |
-| -------- | ------- | ---------- | ------------ |
-| React, React Router | Python, Flask, Gunicorn | OpenAI, Gemini API, MediaPipe, NLP (spaCy) | Firebase, dotenv |
+## 🧾 Overview
+MockMate is a full-featured mock interview application designed for job seekers and professionals who want to practice their interview skills. It provides real-time video analysis, AI-driven behavioral scoring, and correctness feedback—all in one beautifully designed, dark-themed platform.
+From uploading your CV to practicing custom questions based on your target role, MockMate keeps you prepared and confident.
 
-## Local Setup
+## ✨ Key Features
+- 🧠 **AI-Powered Scoring** — Live analysis of both behavioral metrics (eye contact, posture) and answer correctness.
+- 📹 **Real-Time Video Processing** — Built-in recording with immediate OpenCV and MediaPipe tracking.
+- 🔁 **Custom Question Generation** — Automatically creates relevant questions based on your uploaded CV and target role.
+- 📋 **Detailed Performance Reports** — Comprehensive dashboard showing your overall score, strengths, and areas for improvement.
+- 📲 **Instant Feedback** — Generates dynamic follow-up questions to test your depth of knowledge.
+- 🎨 **Premium UI** — Sleek, modern interface using TailwindCSS, Glassmorphism, and Framer Motion.
 
-### Backend (Python/Flask)
-1. Navigate to the backend directory:
-   `cd backend`
-2. Create and activate a virtual environment:
-   - Windows: `python -m venv venv && venv\Scripts\activate`
-   - Mac/Linux: `python3 -m venv venv && source venv/bin/activate`
-3. Install dependencies:
-   `pip install -r requirements.txt`
-4. Copy `.env.example` to `.env` and fill in your API keys (see Environment Variables section).
-5. Run the server:
-   `python app.py`
+## 🏗️ Tech Stack
 
-### Frontend (React)
-1. Navigate to the frontend directory:
-   `cd frontend`
-2. Install dependencies:
-   `npm install`
-3. Start the development server:
-   `npm start`
+### Frontend
+- **React & Vite**
+- **TanStack Router**
+- **TailwindCSS & Framer Motion**
+- **Firebase Auth**
 
-## Environment Variables
-The backend relies on the environment variables shown in `backend/.env.example`. Create a `.env` file in the `backend` folder containing your `GEMINI_API_KEY`, `OPENAI_API_KEY`, and `FIREBASE_*` credentials.
+### Backend
+- **Python & Flask**
+- **OpenCV & MediaPipe** (Video Analysis)
+- **Google Gemini API** (AI Scoring)
+- **FFmpeg** (Video Conversion)
 
-## Git Conventions
+## 🖼️ App Architecture
+```text
+mock-interviewer/
+├── backend/
+│   ├── tests/          # Validation and pipeline testing
+│   ├── data/           # Question banks and caching
+│   ├── ml/             # ML inference models
+│   └── *.py            # Core video processors and AI scorers
+└── frontend/
+    ├── src/
+    │   ├── components/ # Reusable UI components
+    │   ├── routes/     # TanStack application views
+    │   └── store/      # Global state management
+    └── index.html
+```
 
-### Branch Naming
-Please use the following format: `feature/[part-number]-[description]`
-Example: `feature/A-cv-parser`
+### Prerequisites
+- Node.js (v18+)
+- Python (3.9+)
+- FFmpeg (Must be installed and in PATH)
 
-### Commit Messages
-Format: `type: description`
-Examples:
-- `feat: added user authentication`
-- `fix: resolved CORS issue on cv upload`
-- `docs: updated readme instructions`
-- `chore: updated dependencies`
+### Setup
+1. Clone the repository:
+```bash
+git clone https://github.com/Abdulrehman0911/Mock-Interviewer.git
+cd Mock-Interviewer
+```
 
-## Team & Responsibilities
+2. Setup Backend:
+```bash
+cd mock-interviewer/backend
+python -m venv .venv
+# Activate venv (Windows: .venv\Scripts\activate | Mac/Linux: source .venv/bin/activate)
+pip install -r requirements.txt
+python app.py
+```
 
-| Name | Section | Responsibilities & Roadmap |
-| ---- | ------- | ---------------- |
-| **Adil** | Section A | **Frontend & System Config:** Sets up React/Flask environments, implements base pages, handles initial API routing & CV upload interface. |
-| **Asad** | Section B | **Database & Auth:** Integrates Firebase Authentication, manages user session states, sets up database schema for questions and user histories. |
-| **Usman** | Section C | **Media & UI Interaction:** Video/Audio recording logic, MediaPipe integration for real-time tracking, WebRTC/Canvas management. |
-| **AbdulRehman** | Section D | **Full AI Pipeline:** Implements CV parsing, Gemini/OpenAI prompt integration, answer analysis, feedback generation, and overall evaluator matrix. |
+3. Setup Frontend:
+```bash
+cd mock-interviewer/frontend
+npm install
+npm run dev
+```
 
-> Note: Make sure to review the full `plan.md` (if available) for granular step-by-step duties.
+## 📂 Project Info
+Professional AI Mock Interview Platform.
+
+**Note:** Video processing happens locally to respect your privacy, and scores are securely stored via Firebase.
