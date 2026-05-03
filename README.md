@@ -124,7 +124,7 @@ The frontend is inspired by modern SaaS design language (Lovable-style), built w
 ## Project Structure
 
 ```
-mock-interviewer/
+MockMate/
 │
 ├── backend/
 │   ├── app.py                    # Flask server — all API endpoints
@@ -387,7 +387,7 @@ cd Mock-Interviewer
 ### 2. Backend Setup
 
 ```bash
-cd mock-interviewer/backend
+cd backend
 
 # Create and activate virtual environment
 python -m venv .venv
@@ -405,7 +405,7 @@ python app.py
 ### 3. Frontend Setup
 
 ```bash
-cd mock-interviewer/frontend
+cd frontend
 
 # Install dependencies
 npm install
@@ -417,7 +417,7 @@ npm run dev
 
 ### 4. Environment Variables
 
-Create `mock-interviewer/backend/.env` based on `.env.example`:
+Create `backend/.env` based on `.env.example`:
 
 ```env
 FIREBASE_CREDENTIALS=path/to/serviceAccountKey.json
