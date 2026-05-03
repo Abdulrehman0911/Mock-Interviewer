@@ -376,6 +376,9 @@ def process_video_endpoint():
                     "subscale": evaluation["breakdown"]["correctness"].get("subscale", 0),
                     "tier": evaluation["breakdown"]["correctness"].get("tier_matched", "NONE"),
                     "match_pct": evaluation["breakdown"]["correctness"].get("match_pct", 0),
+                    "match_high": evaluation["breakdown"]["correctness"].get("match_high", 0),
+                    "match_medium": evaluation["breakdown"]["correctness"].get("match_medium", 0),
+                    "match_low": evaluation["breakdown"]["correctness"].get("match_low", 0),
                     "filler_count": evaluation["breakdown"]["correctness"].get("filler_count", 0),
                 },
                 "final": {

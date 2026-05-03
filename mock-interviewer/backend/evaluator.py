@@ -117,10 +117,12 @@ def evaluate_answer(features_dict, transcript, question_id=None, role="Software 
                     "percentage": round((correctness_score / 10.0) * 100.0, 1),
                     "subscale": correctness_out_of_6,
                     "tier_matched": tier_matched,
+                    "match_pct": correctness_result.get("match_pct", 0),
                     "match_high": correctness_result.get("match_high", 0),
                     "match_medium": correctness_result.get("match_medium", 0),
                     "match_low": correctness_result.get("match_low", 0),
                     "filler_count": correctness_result.get("filler_count", 0),
+                    "filler_penalty": correctness_result.get("filler_penalty", 0),
                 },
                 "final": {
                     "score": final_score,

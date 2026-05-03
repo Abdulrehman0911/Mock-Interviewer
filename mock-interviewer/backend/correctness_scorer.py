@@ -133,156 +133,109 @@ def score_answer_correctness(
     question_id: int,
     role: str = "Software Engineer"
 ) -> Dict[str, object]:
-    """Score answer correctness by tier matching.
-    
-    Compares transcript keywords against high/medium/low answer tiers.
+    """Score answer correctness supporting both 1-tier and 3-tier JSON.
     
     Args:
         transcript: User's answer transcript.
         question_id: ID of the question being answered.
-        role: Job role/interview type (default: Software Engineer).
+        role: Job role/interview type.
     
     Returns:
-        dict with correctness_score, tier matched, match percentages, and keywords found.
+        dict with correctness_score and all match percentage keys.
     """
     
     # Handle empty transcript
     if not transcript or not isinstance(transcript, str):
-        print("[Correctness] ERROR: No transcript provided")
-        return {
-            "correctness_score": 0.0,
-            "error": "No transcript provided"
-        }
+        return {"correctness_score": 0.0, "error": "No transcript provided"}
     
-    # Load questions if not cached
+    global _QA_CACHE
+    if not _QA_CACHE:
+        _QA_CACHE = _load_questions_answers()
+    
     qa_data = _QA_CACHE
     if not qa_data:
-        print("[Correctness] ERROR: Questions data not loaded")
-        return {
-            "correctness_score": 0.0,
-            "error": "Questions data not loaded"
-        }
+        return {"correctness_score": 0.0, "error": "Questions data not loaded"}
     
-    # Find the role's questions
+    # Find the role and question
     role_questions = qa_data.get(role, [])
-    if not role_questions:
-        print(f"[Correctness] ERROR: Role '{role}' not found")
-        return {
-            "correctness_score": 0.0,
-            "error": f"Role '{role}' not found"
-        }
-    
-    # Find the specific question
-    question_obj = None
-    for q in role_questions:
-        if q.get("question_id") == question_id:
-            question_obj = q
-            break
+    question_obj = next((q for q in role_questions if q.get("question_id") == question_id), None)
     
     if not question_obj:
-        print(f"[Correctness] WARNING: Question ID {question_id} not found")
-        return {
-            "correctness_score": 5.0,  # Default neutral score
-            "warning": f"Question ID {question_id} not found, using default"
-        }
+        return {"correctness_score": 5.0, "warning": "Question not found"}
     
-    # Extract user keywords
     user_keywords = extract_user_keywords(transcript)
-    print(f"[Correctness] Extracted keywords: {user_keywords[:20]}")
-    
     if not user_keywords:
-        print("[Correctness] ERROR: No meaningful keywords extracted")
-        return {
-            "correctness_score": 0.0,
-            "error": "No meaningful keywords extracted from transcript",
-            "keywords_found": []
-        }
+        return {"correctness_score": 0.0, "keywords_found": []}
+
+    # --- UNIVERSAL LOGIC ---
+    # 1. Try NEW 1-Tier Structure
+    master_keywords = question_obj.get("keywords")
     
-    # Get answer tiers sorted by quality score (descending)
+    # 2. Try OLD 3-Tier Structure
     answers = question_obj.get("answers", [])
-    if not answers:
-        print("[Correctness] ERROR: No answer tiers defined")
-        return {
-            "correctness_score": 0.0,
-            "error": "No answer tiers defined for question"
-        }
     
-    # Sort by quality_score descending: high, medium, low
-    answers_sorted = sorted(answers, key=lambda a: a.get("quality_score", 0), reverse=True)
-    
-    # Extract keywords from each tier
-    tier_keywords = {
-        "HIGH": answers_sorted[0].get("keywords", []) if len(answers_sorted) > 0 else [],
-        "MEDIUM": answers_sorted[1].get("keywords", []) if len(answers_sorted) > 1 else [],
-        "LOW": answers_sorted[2].get("keywords", []) if len(answers_sorted) > 2 else [],
-    }
-    
-    # ACTION 3.3: Calculate matches for each tier using fuzzy matching
-    match_high = calculate_keyword_matches(user_keywords, tier_keywords["HIGH"], threshold=0.8)
-    match_medium = calculate_keyword_matches(user_keywords, tier_keywords["MEDIUM"], threshold=0.8)
-    match_low = calculate_keyword_matches(user_keywords, tier_keywords["LOW"], threshold=0.8)
-    
-    print(f"[Correctness] Match Analysis:")
-    print(f"  HIGH tier: {match_high:.1f}% match")
-    print(f"  MEDIUM tier: {match_medium:.1f}% match")
-    print(f"  LOW tier: {match_low:.1f}% match")
-    
-    # ACTION 3.4: Determine tier and score
-    tier_matched = None
+    match_high = 0.0
+    match_medium = 0.0
+    match_low = 0.0
+    match_pct = 0.0
+    tier_matched = "NONE"
     correctness_score = 0.0
-    
-    if match_high >= 70.0:
-        # HIGH tier: 70-100% match -> 8-10 score
-        tier_matched = "HIGH"
-        correctness_score = 8.0 + (match_high - 70.0) / 30.0 * 2.0
-        print(f"  [HIGH] Tier matched with {match_high:.1f}%")
-    elif match_medium >= 60.0:
-        # MEDIUM tier: 60-100% match -> 5-7 score
-        tier_matched = "MEDIUM"
-        correctness_score = 5.0 + (match_medium - 60.0) / 40.0 * 2.0
-        print(f"  [MEDIUM] Tier matched with {match_medium:.1f}%")
-    elif match_low >= 40.0:
-        # LOW tier: 40-100% match -> 2-4 score
-        tier_matched = "LOW"
-        correctness_score = 2.0 + (match_low - 40.0) / 60.0 * 2.0
-        print(f"  [LOW] Tier matched with {match_low:.1f}%")
-    elif max(match_high, match_medium, match_low) > 0.0:
-        # PARTIAL tier: Any match below thresholds -> 1 score
-        tier_matched = "PARTIAL"
-        best_match = max(match_high, match_medium, match_low)
-        correctness_score = 1.0
-        print(f"  [PARTIAL] Partial match with {best_match:.1f}%")
-    else:
-        # NONE: No matches -> 0 score
-        tier_matched = "NONE"
-        correctness_score = 0.0
-        print(f"  [NONE] No keywords matched")
-    
-    # ACTION 3.5: Add filler word penalty
-    filler_count = _count_fillers(transcript) if hasattr(transcript, '__len__') else 0
+
+    if master_keywords:
+        # NEW LOGIC (80/40 rule)
+        match_pct = calculate_keyword_matches(user_keywords, master_keywords, threshold=0.8)
+        if match_pct >= 80.0:
+            tier_matched, correctness_score = "HIGH", 9.0 + (match_pct - 80.0) / 20.0 * 1.0
+        elif match_pct >= 40.0:
+            tier_matched, correctness_score = "MEDIUM", 6.0 + (match_pct - 40.0) / 40.0 * 2.5
+        elif match_pct > 0.0:
+            tier_matched, correctness_score = "LOW", 2.0 + (match_pct - 0.0) / 40.0 * 3.5
+        
+        # Populate old keys for compatibility
+        match_high = match_pct if tier_matched == "HIGH" else 0.0
+        match_medium = match_pct if tier_matched == "MEDIUM" else 0.0
+        match_low = match_pct if tier_matched == "LOW" else 0.0
+
+    elif answers:
+        # OLD LOGIC (Tier-based matching)
+        answers_sorted = sorted(answers, key=lambda a: a.get("quality_score", 0), reverse=True)
+        kw_high = answers_sorted[0].get("keywords", []) if len(answers_sorted) > 0 else []
+        kw_medium = answers_sorted[1].get("keywords", []) if len(answers_sorted) > 1 else []
+        kw_low = answers_sorted[2].get("keywords", []) if len(answers_sorted) > 2 else []
+        
+        match_high = calculate_keyword_matches(user_keywords, kw_high, threshold=0.8)
+        match_medium = calculate_keyword_matches(user_keywords, kw_medium, threshold=0.8)
+        match_low = calculate_keyword_matches(user_keywords, kw_low, threshold=0.8)
+        
+        if match_high >= 70.0:
+            tier_matched, correctness_score = "HIGH", 8.0 + (match_high - 70.0) / 30.0 * 2.0
+        elif match_medium >= 60.0:
+            tier_matched, correctness_score = "MEDIUM", 5.0 + (match_medium - 60.0) / 40.0 * 2.0
+        elif match_low >= 40.0:
+            tier_matched, correctness_score = "LOW", 2.0 + (match_low - 40.0) / 60.0 * 2.0
+        
+        match_pct = max(match_high, match_medium, match_low)
+
+    # Filler word penalty
+    filler_count = _count_fillers(transcript)
     filler_penalty = 0.0
-    
-    if filler_count > 10:
+    if tier_matched == "HIGH" and filler_count > 2:
+        filler_penalty = 0.5 if filler_count <= 6 else 1.5
+    elif tier_matched == "MEDIUM" and filler_count > 6:
         filler_penalty = 1.0
-        print(f"  [PENALTY] Filler count {filler_count} > 10 → -1.0 penalty")
-    elif filler_count > 5:
-        filler_penalty = 0.5
-        print(f"  [PENALTY] Filler count {filler_count} > 5 → -0.5 penalty")
-    
-    correctness_score = max(0.0, correctness_score - filler_penalty)
-    
-    # Clamp and round
-    correctness_score = round(min(10.0, max(0.0, correctness_score)), 1)
-    
-    print(f"  FINAL Correctness Score: {correctness_score}/10")
+    elif filler_count > 10:
+        filler_penalty = 1.0
+
+    final_score = round(max(0.0, correctness_score - filler_penalty), 1)
     
     return {
-        "correctness_score": correctness_score,
+        "correctness_score": final_score,
+        "match_pct": round(match_pct, 1),
         "match_high": round(match_high, 1),
         "match_medium": round(match_medium, 1),
         "match_low": round(match_low, 1),
         "tier_matched": tier_matched,
         "filler_count": filler_count,
         "filler_penalty": filler_penalty,
-        "keywords_found": user_keywords[:25],  # First 25 for brevity
+        "keywords_found": user_keywords[:25],
     }
