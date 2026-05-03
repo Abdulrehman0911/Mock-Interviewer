@@ -7,13 +7,13 @@ echo =====================================
 echo.
 
 echo [1/2] Starting Backend (Flask)...
-start "MockMate Backend" cmd /k "cd /d d:\Projects\AI_Project\mock-interviewer\backend && python app.py"
+start "MockMate Backend" cmd /k "cd /d %~dp0backend && ..\.venv\Scripts\python app.py"
 
 echo     Waiting for backend to load models...
 timeout /t 8 /nobreak >nul
 
 echo [2/2] Starting Frontend (Vite)...
-start "MockMate Frontend" cmd /k "cd /d d:\Projects\AI_Project\mock-interviewer\frontend && npm run dev"
+start "MockMate Frontend" cmd /k "cd /d %~dp0frontend && npm run dev"
 
 echo     Waiting for frontend to compile...
 timeout /t 6 /nobreak >nul
